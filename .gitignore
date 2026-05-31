@@ -1,0 +1,50 @@
+# Build directories
+build/
+build-*/
+cmake-build-*/
+out/
+
+# CMake artifacts
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# IDE / clangd
+.idea/
+.vscode/
+.vs/
+*.user
+.cache/
+compile_commands.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Compiled
+*.o
+*.obj
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Sanitizer / profiling
+*.tsan.log*
+*.asan.log*
+perf.data*
+
+# Generated dataset (regenerate via: python3 scripts/gen_dataset.py)
+/data/notifications.jsonl
+/data/meta.json
+
+# Personal notes
+INSTRUCTOR_NOTES.md
+BRIEF.md
