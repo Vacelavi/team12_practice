@@ -40,6 +40,7 @@ bool NotificationService::cancel(std::string_view id) {
         return false;
     }
 
+
     schedule_.erase(ScheduleEntry{(*it).second});
     notifications_.erase(it);
     return true;
@@ -71,24 +72,23 @@ std::vector<DueNotification> NotificationService::due(std::int64_t now,
                                                       std::size_t  limit) const {
     std::lock_guard<std::mutex> lk(mu_);
 
+    size_t result_size = std::min(schedule_.size(), limit);
     std::vector<DueNotification> result;
-    result.reserve(schedule_.size());
-    for (const auto& notification : schedule_) {
-        const auto& id = notification.id;
-        auto it = notifications_.find(id);
-        if (it == notifications_.end()) {
-            continue;
-        }
-        const auto& n = it->second;
-        if (n.send_at > now) {
-            continue;
-        }
-        result.push_back(toDue(n));
-    }
+    result.reserve(result_size);
+    size_t elements_counter = 0;
 
-    if (result.size() > limit) {
-        result.resize(limit);
+    for (const auto& notification : schedule_) {
+        if (notification.send_at > now) {
+            break;
+        }
+
+        result.push_back(toDue(notifications_.at(notification.id)));
+        elements_counter++;
+        if (elements_counter >= result_size) {
+            break;
+        }
     }
+    
     return result;
 }
 
