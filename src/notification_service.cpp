@@ -28,8 +28,7 @@ NotificationService::~NotificationService() = default;
 
 void NotificationService::add(Notification notification) {
     std::lock_guard<std::mutex> lk(mu_);
-    notification.status = NotificationStatus::Pending;
-    schedule_.push_back(notification.id);
+    schedule_.insert(ScheduleEntry(notification));
     notifications_[notification.id] = std::move(notification);
 }
 
@@ -40,8 +39,10 @@ bool NotificationService::cancel(std::string_view id) {
     if (it == notifications_.end()) {
         return false;
     }
-    cancelled_.insert(key);
-    it->second.status = NotificationStatus::Cancelled;
+
+
+    schedule_.erase(ScheduleEntry{(*it).second});
+    notifications_.erase(it);
     return true;
 }
 
@@ -49,11 +50,12 @@ bool NotificationService::markSent(std::string_view id) {
     std::lock_guard<std::mutex> lk(mu_);
     const auto key = std::string(id);
     auto it = notifications_.find(key);
-    if (it == notifications_.end() || cancelled_.count(key) != 0) {
+    if (it == notifications_.end()) {
         return false;
     }
-    sent_.insert(key);
-    it->second.status = NotificationStatus::Sent;
+
+    schedule_.erase(ScheduleEntry{(*it).second});
+    notifications_.erase(it);
     return true;
 }
 
@@ -70,32 +72,23 @@ std::vector<DueNotification> NotificationService::due(std::int64_t now,
                                                       std::size_t  limit) const {
     std::lock_guard<std::mutex> lk(mu_);
 
+    size_t result_size = std::min(schedule_.size(), limit);
     std::vector<DueNotification> result;
-    result.reserve(schedule_.size());
-    for (const auto& id : schedule_) {
-        auto it = notifications_.find(id);
-        if (it == notifications_.end()) {
-            continue;
-        }
-        const auto& n = it->second;
-        if (n.send_at > now) {
-            continue;
-        }
-        if (cancelled_.count(id) != 0 || sent_.count(id) != 0) {
-            continue;
-        }
-        result.push_back(toDue(n));
-    }
+    result.reserve(result_size);
+    size_t elements_counter = 0;
 
-    std::sort(result.begin(), result.end(), [](const DueNotification& a,
-                                               const DueNotification& b) {
-        if (a.send_at != b.send_at) return a.send_at < b.send_at;
-        return a.id < b.id;
-    });
+    for (const auto& notification : schedule_) {
+        if (notification.send_at > now) {
+            break;
+        }
 
-    if (result.size() > limit) {
-        result.resize(limit);
+        result.push_back(toDue(notifications_.at(notification.id)));
+        elements_counter++;
+        if (elements_counter >= result_size) {
+            break;
+        }
     }
+    
     return result;
 }
 

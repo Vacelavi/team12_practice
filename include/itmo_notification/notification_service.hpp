@@ -7,7 +7,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
-#include <unordered_set>
+#include <set>
 #include <vector>
 
 #include "itmo_notification/due_notification.hpp"
@@ -41,10 +41,7 @@ public:
 
 private:
     std::unordered_map<std::string, Notification> notifications_;
-    std::vector<std::string>                      schedule_;
-    std::unordered_set<std::string>               cancelled_;
-    std::unordered_set<std::string>               sent_;
-
+    std::set<ScheduleEntry, ScheduleEntryLess>    schedule_;
     mutable std::mutex mu_;
 };
 
