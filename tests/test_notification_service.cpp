@@ -153,7 +153,7 @@ TEST(NotificationServiceTest, ConcurrentAddSentAndDueIsSafe) {
 // Помечены DISABLED_ — должны включиться и проходить после доработки сервиса.
 // -----------------------------------------------------------------------------
 
-TEST(NotificationServiceTest, DISABLED_DueOrderingUsesPriorityCreatedAtAndId) {
+TEST(NotificationServiceTest, DueOrderingUsesPriorityCreatedAtAndId) {
     NotificationService service;
     service.add(makeNotification("a-low", 100, 1, 10));
     service.add(makeNotification("z-high", 100, 9, 20));
@@ -168,7 +168,7 @@ TEST(NotificationServiceTest, DISABLED_DueOrderingUsesPriorityCreatedAtAndId) {
     EXPECT_EQ(due[3].id, "a-low");
 }
 
-TEST(NotificationServiceTest, DISABLED_DuplicateIdDoesNotCreateDuplicateDueEntries) {
+TEST(NotificationServiceTest, DuplicateIdDoesNotCreateDuplicateDueEntries) {
     NotificationService service;
     service.add(makeNotification("n1", 100, 1, 1));
     service.add(makeNotification("n1", 100, 9, 2));
@@ -179,7 +179,7 @@ TEST(NotificationServiceTest, DISABLED_DuplicateIdDoesNotCreateDuplicateDueEntri
     EXPECT_EQ(due[0].priority, 1);
 }
 
-TEST(NotificationServiceTest, DISABLED_CancelledIdCanBeScheduledAgain) {
+TEST(NotificationServiceTest, CancelledIdCanBeScheduledAgain) {
     NotificationService service;
     service.add(makeNotification("n1", 100));
     ASSERT_TRUE(service.cancel("n1"));
@@ -191,7 +191,7 @@ TEST(NotificationServiceTest, DISABLED_CancelledIdCanBeScheduledAgain) {
     EXPECT_EQ(due[0].id, "n1");
 }
 
-TEST(NotificationServiceTest, DISABLED_SentIdCanBeScheduledAgain) {
+TEST(NotificationServiceTest, SentIdCanBeScheduledAgain) {
     NotificationService service;
     service.add(makeNotification("n1", 100));
     ASSERT_TRUE(service.markSent("n1"));
@@ -203,7 +203,7 @@ TEST(NotificationServiceTest, DISABLED_SentIdCanBeScheduledAgain) {
     EXPECT_EQ(due[0].id, "n1");
 }
 
-TEST(NotificationServiceTest, DISABLED_DueOrderingUsesCreatedAtBeforeId) {
+TEST(NotificationServiceTest, DueOrderingUsesCreatedAtBeforeId) {
     NotificationService service;
     service.add(makeNotification("z-old", 100, 5, 1));
     service.add(makeNotification("a-new", 100, 5, 2));
