@@ -2,8 +2,8 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <mutex>
 #include <optional>
+#include <shared_mutex>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -42,7 +42,7 @@ public:
 private:
     std::unordered_map<std::string, Notification> notifications_;
     std::set<ScheduleEntry, ScheduleEntryLess>    schedule_;
-    mutable std::mutex mu_;
+    mutable std::shared_mutex mu_;
 };
 
 }  // namespace itmo_notification
