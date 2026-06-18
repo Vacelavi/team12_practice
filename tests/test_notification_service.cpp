@@ -13,6 +13,7 @@
 using itmo_notification::Notification;
 using itmo_notification::NotificationService;
 using itmo_notification::NotificationStatus;
+using itmo_notification::NotificationLimitator;
 
 namespace {
 
@@ -212,4 +213,34 @@ TEST(NotificationServiceTest, DueOrderingUsesCreatedAtBeforeId) {
     ASSERT_EQ(due.size(), 2u);
     EXPECT_EQ(due[0].id, "z-old");
     EXPECT_EQ(due[1].id, "a-new");
+}
+
+TEST(NotificationServiceTest, MultipleCallsAccumulateCounter) {
+    NotificationLimitator limitator;
+    
+    size_t first_batch = 60;
+    limitator.limit(first_batch);
+    EXPECT_EQ(first_batch, 60);
+    
+    size_t second_batch = 60;
+    limitator.limit(second_batch);
+    EXPECT_EQ(second_batch, 40);
+}
+
+TEST(NotificationLimitatorTest, LimitResetsAfterPeriod) {
+    NotificationLimitator limitator;
+    limitator.setPeriod(1);
+    
+    size_t first_batch = 100;
+    limitator.limit(first_batch);
+    size_t second_batch = 50;
+    limitator.limit(second_batch);
+    EXPECT_EQ(second_batch, 0);
+    
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    
+    size_t third_batch = 50;
+    limitator.limit(third_batch);
+    
+    EXPECT_EQ(third_batch, 50);
 }

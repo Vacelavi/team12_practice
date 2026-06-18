@@ -15,6 +15,26 @@
 
 namespace itmo_notification {
 
+class NotificationLimitator {
+public:
+
+    NotificationLimitator();
+
+    void limit(size_t& limit);
+    void setLimit(size_t limit);
+    void setPeriod(size_t period);
+
+private:
+    size_t latest_timestamp_;
+    size_t sent_counter_;
+    size_t sent_limit_;
+    size_t period_;
+
+    size_t unixNow();
+
+};
+
+
 // In-memory планировщик уведомлений. API менять нельзя: он соответствует HTTP-ручкам.
 class NotificationService {
 public:
@@ -43,6 +63,7 @@ private:
     std::unordered_map<std::string, Notification> notifications_;
     std::set<ScheduleEntry, ScheduleEntryLess>    schedule_;
     mutable std::shared_mutex mu_;
+    mutable NotificationLimitator limitator_;
 };
 
 }  // namespace itmo_notification
