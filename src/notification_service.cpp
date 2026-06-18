@@ -51,9 +51,6 @@ NotificationService::~NotificationService() = default;
 
 void NotificationService::add(Notification notification) {
 
-    if (notification.send_at > nightime_begin || notification.send_at < nightime_end) {
-        notification.send_at = nightime_end;
-    }
     std::unique_lock<std::shared_mutex> lk(mu_);
 
     if (notifications_.contains(notification.id)) {
