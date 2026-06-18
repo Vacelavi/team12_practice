@@ -15,6 +15,9 @@
 
 namespace itmo_notification {
 
+inline const size_t nightime_begin = 82800; // 23:00
+inline const size_t nightime_end = 21600;   // 6:00
+
 class NotificationLimitator {
 public:
 
