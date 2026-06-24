@@ -62,6 +62,9 @@ public:
     // POST /v1/due/claim?now=...&limit=...
     std::vector<DueNotification> claim(std::int64_t now, std::size_t limit);
 
+    // POST /v1/limits/config?period=...&limit=...
+    void configLimit(size_t period, size_t limit);
+
 private:
     std::unordered_map<std::string, Notification> notifications_;
     std::set<ScheduleEntry, ScheduleEntryLess>    schedule_;

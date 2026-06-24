@@ -20,11 +20,14 @@ DueNotification toDue(const Notification &n) {
 NotificationLimitator::NotificationLimitator()
     : latest_timestamp_(unixNow())
     , sent_counter_(0)
-    , sent_limit_(100)
-    , period_(3600)
+    , sent_limit_(0)
+    , period_(0)
 {}
 
 void NotificationLimitator::limit(size_t& limit) {
+    if (period_ == 0 || sent_limit_ == 0) {
+        return;
+    }
     if (unixNow() - latest_timestamp_ >= period_) {
         sent_counter_ = 0;
     }
@@ -144,5 +147,11 @@ std::vector<DueNotification> NotificationService::claim(std::int64_t now,
     
     return result;
 }
+
+void NotificationService::configLimit(size_t period, size_t limit) {
+    limitator_.setPeriod(period);
+    limitator_.setLimit(limit);
+}
+
 
 } // namespace itmo_notification
