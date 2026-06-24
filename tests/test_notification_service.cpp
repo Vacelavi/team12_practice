@@ -215,8 +215,10 @@ TEST(NotificationServiceTest, DueOrderingUsesCreatedAtBeforeId) {
     EXPECT_EQ(due[1].id, "a-new");
 }
 
-TEST(NotificationServiceTest, MultipleCallsAccumulateCounter) {
+TEST(NotificationLimitatorTest, MultipleCallsAccumulateCounter) {
     NotificationLimitator limitator;
+    limitator.setLimit(100);
+    limitator.setPeriod(3600);
     
     size_t first_batch = 60;
     limitator.limit(first_batch);
@@ -230,6 +232,7 @@ TEST(NotificationServiceTest, MultipleCallsAccumulateCounter) {
 TEST(NotificationLimitatorTest, LimitResetsAfterPeriod) {
     NotificationLimitator limitator;
     limitator.setPeriod(1);
+    limitator.setLimit(100);
     
     size_t first_batch = 100;
     limitator.limit(first_batch);
