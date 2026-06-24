@@ -59,6 +59,9 @@ public:
     // GET /v1/due?now=...&limit=...
     std::vector<DueNotification> due(std::int64_t now, std::size_t limit) const;
 
+    // POST /v1/due/claim?now=...&limit=...
+    std::vector<DueNotification> claim(std::int64_t now, std::size_t limit);
+
 private:
     std::unordered_map<std::string, Notification> notifications_;
     std::set<ScheduleEntry, ScheduleEntryLess>    schedule_;
