@@ -189,6 +189,21 @@ int main(int /*argc*/, char** /*argv*/) {
         }
     });
 
+    server.Post("/v1/limits/config", [&](const httplib::Request& req, httplib::Response& res) {
+        try {
+            if (!req.has_param("period") || !req.has_param("limit")) {
+                writeJson(res, 400, {{"error", "missing required parameters: period and/or limit"}});
+                return;
+            }
+            size_t period = std::stoull(req.get_param_value("period"));
+            size_t limit = std::stoull(req.get_param_value("limit"));
+            service.configLimit(period, limit);
+            writeJson(res, 200, {{"ok", true}});
+        } catch (const std::exception& e) {
+            writeJson(res, 400, {{"error", "period/limit must be integers"}});
+        }
+    });
+
     std::cout << "notification_service listening on " << kDefaultHost << ":"
               << kDefaultPort << "\n";
     if (!server.listen(kDefaultHost, kDefaultPort)) {
