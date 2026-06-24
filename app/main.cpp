@@ -29,6 +29,8 @@ std::string statusToString(itmo_notification::NotificationStatus status) {
     switch (status) {
         case itmo_notification::NotificationStatus::Pending:
             return "pending";
+        case itmo_notification::NotificationStatus::Processing:
+            return "processing";
         case itmo_notification::NotificationStatus::Sent:
             return "sent";
         case itmo_notification::NotificationStatus::Cancelled:

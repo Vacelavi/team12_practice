@@ -7,6 +7,7 @@ namespace itmo_notification {
 
 enum class NotificationStatus {
     Pending,
+    Processing,
     Sent,
     Cancelled,
 };
