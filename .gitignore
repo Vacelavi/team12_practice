@@ -48,3 +48,6 @@ perf.data*
 # Personal notes
 INSTRUCTOR_NOTES.md
 BRIEF.md
+
+#Python virtual machine
+.venv

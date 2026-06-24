@@ -110,13 +110,38 @@ std::vector<DueNotification> NotificationService::due(std::int64_t now,
     result.reserve(result_size);
 
     for (const auto &notification : schedule_) {
-        if (notification.send_at > now || result.size() >= result_size) {
+        if (notification.send_at > now || result.size() >= result_size
+             || notifications_.at(notification.id).status != NotificationStatus::Pending) {
             break;
         }
 
         result.push_back(toDue(notifications_.at(notification.id)));
     }
 
+    return result;
+}
+
+std::vector<DueNotification> NotificationService::claim(std::int64_t now, 
+                                                        std::size_t limit) {
+    std::unique_lock<std::shared_mutex> lk(mu_);
+    limitator_.limit(limit);
+
+    std::vector<DueNotification> result;
+    for (auto& [id, notif] : notifications_) {
+        if (notif.status != NotificationStatus::Pending) {
+            continue;
+        }
+        if (notif.send_at > now) {
+            continue;
+        }
+        if (result.size() >= limit) {
+            break;
+        }
+        
+        notif.status = NotificationStatus::Processing;
+        result.push_back(toDue(notif));
+    }
+    
     return result;
 }
 

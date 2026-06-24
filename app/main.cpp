@@ -29,6 +29,8 @@ std::string statusToString(itmo_notification::NotificationStatus status) {
     switch (status) {
         case itmo_notification::NotificationStatus::Pending:
             return "pending";
+        case itmo_notification::NotificationStatus::Processing:
+            return "processing";
         case itmo_notification::NotificationStatus::Sent:
             return "sent";
         case itmo_notification::NotificationStatus::Cancelled:
@@ -163,6 +165,28 @@ int main(int /*argc*/, char** /*argv*/) {
             body.push_back(dueToJson(n));
         }
         writeJson(res, 200, body);
+    });
+
+    server.Post("/v1/due/claim", [&](const httplib::Request& req, httplib::Response& res) {
+        std::int64_t now = unixNow();
+        std::size_t limit = 100;
+        try {
+            if (req.has_param("now")) {
+                now = static_cast<std::int64_t>(std::stoll(req.get_param_value("now")));
+            }
+            if (req.has_param("limit")) {
+                limit = static_cast<std::size_t>(std::stoll(req.get_param_value("limit")));
+            }
+            
+            const auto due_list = service.claim(now, limit);
+            json result = json::array();
+            for (const auto& d : due_list) {
+                result.push_back(dueToJson(d));
+            }
+            writeJson(res, 200, {{"data", result}});
+        } catch (const std::exception& e) {
+            writeJson(res, 400, {{"error", "bad parameters"}, {"detail", e.what()}});
+        }
     });
 
     std::cout << "notification_service listening on " << kDefaultHost << ":"
