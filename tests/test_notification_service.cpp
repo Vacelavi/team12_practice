@@ -244,3 +244,37 @@ TEST(NotificationLimitatorTest, LimitResetsAfterPeriod) {
     
     EXPECT_EQ(third_batch, 50);
 }
+
+
+// Claim API tests
+TEST(NotificationServiceTest, ClaimTransitionsPendingToProcessing) {
+    NotificationService service;
+    service.add(makeNotification("n1", 100));
+
+    const auto claimed = service.claim(100, 10);
+    ASSERT_EQ(claimed.size(), 1u);
+    EXPECT_EQ(claimed[0].id, "n1");
+
+    const auto n = service.get("n1");
+    ASSERT_TRUE(n.has_value());
+    EXPECT_EQ(n->status, NotificationStatus::Processing);
+}
+
+TEST(NotificationServiceTest, DueDoesNotReturnProcessing) {
+    NotificationService service;
+    service.add(makeNotification("n1", 100));
+
+    service.claim(100, 10);
+
+    EXPECT_TRUE(service.due(100, 10).empty());
+}
+
+TEST(NotificationServiceTest, ClaimMultipleNotifications) {
+    NotificationService service;
+    for (int i = 0; i < 5; ++i) {
+        service.add(makeNotification("n" + std::to_string(i), 100 + i));
+    }
+
+    const auto claimed = service.claim(200, 3);
+    EXPECT_EQ(claimed.size(), 3u);
+}

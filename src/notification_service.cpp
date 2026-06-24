@@ -110,7 +110,8 @@ std::vector<DueNotification> NotificationService::due(std::int64_t now,
     result.reserve(result_size);
 
     for (const auto &notification : schedule_) {
-        if (notification.send_at > now || result.size() >= result_size) {
+        if (notification.send_at > now || result.size() >= result_size
+             || notifications_.at(notification.id).status != NotificationStatus::Pending) {
             break;
         }
 
